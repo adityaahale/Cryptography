@@ -52,7 +52,6 @@ def generatekey(keysize):
    32 bytes = 256 bit key
 
    '''
-   # key = base64.urlsafe_b64encode(os.urandom(keysize))
    key = os.urandom(keysize)
    return key
 
@@ -257,63 +256,7 @@ def RSA_chunking(inputfile,outputfile,keysize):
    print(f"The file {outputfile} has been decrypted")
    
 
-def RSA(inputfile,outputfile):
-   '''Encrypts the file using RSA 2048 bit key [limited data to key size]'''
 
-   ## Generating private and public key 
-   private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048)
-   public_key = private_key.public_key()
-
-   ### Prints serialized keys ###
-   # print(private_key.private_bytes(
-   #    encoding=serialization.Encoding.PEM,
-   #    format=serialization.PrivateFormat.TraditionalOpenSSL,
-   #    encryption_algorithm=serialization.NoEncryption()
-   #    ))
-
-   # print(public_key.public_bytes(
-   #    encoding=serialization.Encoding.PEM,
-   #    format=serialization.PublicFormat.SubjectPublicKeyInfo
-   #    ))
-
-   ## Opening the file and loading the original contents
-   with open(inputfile, 'rb') as file:
-      original = file.read()
-      file.close()
-
-   ## Encrypting the file contents using public key
-   ciphertext = public_key.encrypt(
-      original,
-      padding.OAEP(
-         mgf=padding.MGF1(algorithm=hashes.SHA256()),
-         algorithm=hashes.SHA256(),
-         label=None
-         )
-      )
-
-   ## Writing the encrypted contents into the file   
-   with open(outputfile, 'wb') as file:   
-      file.write(ciphertext)
-      file.close()
-   print(f"The file {inputfile} has been encrypted and contents stored to {outputfile}")
-
-   ## Decrypting the ciphertext using private key
-   plaintext = private_key.decrypt(
-      ciphertext,
-      padding.OAEP(
-         mgf=padding.MGF1(algorithm=hashes.SHA256()),
-         algorithm=hashes.SHA256(),
-         label=None
-      )
-   )
-   print('---Decrypted message below---')
-   print(plaintext)   
-
-   ## Writing the decrypted file contents into the file
-   with open(outputfile,'wb') as file:
-      file.write(plaintext)
-      file.close()
-   print(f"The file {outputfile} has been decrypted")
 
 def chunking(file_name, size):
    with open(file_name,'rb') as file:
@@ -629,13 +572,13 @@ def Plot_Graph(data,label):
    df = pd.DataFrame(data)
    algos = df['Algorithms']
 
-   x = np.arange(len(algos))
-   w = 0.3
-   plt.bar(x-w, df['Time Key'].values, width=w, label='Key')
-   plt.bar(x, df['Time Encrption'].values, width=w, label='Encrption')
-   plt.bar(x+w, df['Time Decryption'].values, width=w, label='Decryption')
+   y = np.arange(len(algos))
+   h = 0.3
+   plt.barh(y-h, df['Time Key'].values, height=h, label='Key')
+   plt.barh(y, df['Time Encrption'].values, height=h, label='Encrption')
+   plt.barh(y+h, df['Time Decryption'].values, height=h, label='Decryption')
    # Plot the data using bar() method
-   plt.xticks(x, algos, rotation = 90)
+   plt.yticks(y, algos)
    #plt.ylim([0,0.01])
    plt.tight_layout()
    plt.xlabel(label)
