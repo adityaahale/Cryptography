@@ -14,8 +14,8 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from datetime import timedelta
 from pathlib import Path
 
+#Global variable to keep record of time
 time_collect = []
-sha_collect = []
 
 def createsmallfile(filename):
    '''Creates small file'''
@@ -58,14 +58,14 @@ def generatekey(keysize):
 def AES_CBC(key,inputFile,outputfile):
    '''Encrypts the file using AES_CBC mode'''
 
-   ## Opening the file and loading the original contents
+   # Opening the file and loading the original contents
    with open(inputFile, 'rb') as file:
       original = file.read()
       length = 16 - (len(original)%16)
       original += bytes([length])*length
       file.close()
 
-   ## Generating IV and encrypting the file contents
+   # Generating IV and encrypting the file contents
    iv = os.urandom(16)
    start_time = time.perf_counter_ns()
    cipher = Cipher(algorithms.AES(key),modes.CBC(iv))
@@ -74,7 +74,7 @@ def AES_CBC(key,inputFile,outputfile):
    enc_time = get_time(start_time)
    time_collect.append(enc_time)
  
-   ## Writing the encrypted contents into the file
+   # Writing the encrypted contents into the file
    with open(outputfile, 'wb') as file:   
       file.write(ct)
       file.close()
@@ -85,7 +85,7 @@ def AES_CBC(key,inputFile,outputfile):
       encrypted = file.read()
       file.close()
 
-   ## Decrypting the file contents
+   # Decrypting the file contents
    print('\nDecrypting file--------->')
    start_time = time.perf_counter_ns()
    decryptor = cipher.decryptor()
@@ -97,14 +97,14 @@ def AES_CBC(key,inputFile,outputfile):
 def TripleDES(key,inputFile,outputfile):
    '''Encrypts the file using AES_CBC mode'''
 
-   ## Opening the file and loading the original contents
+   # Opening the file and loading the original contents
    with open(inputFile, 'rb') as file:
       original = file.read()
       length = 16 - (len(original)%16)
       original += bytes([length])*length
       file.close()
 
-   ## Generating IV and encrypting the file contents
+   # Generating IV and encrypting the file contents
    iv = os.urandom(8)
    start_time = time.perf_counter_ns()
    cipher = Cipher(algorithms.TripleDES(key),modes.CBC(iv))
@@ -113,18 +113,18 @@ def TripleDES(key,inputFile,outputfile):
    enc_time = get_time(start_time)
    time_collect.append(enc_time)
  
-   ## Writing the encrypted contents into the file
+   # Writing the encrypted contents into the file
    with open(outputfile, 'wb') as file:   
       file.write(ct)
       file.close()
    print(f"The file {inputFile} has been encrypted and contents stored to {outputfile}")
 
-   ## Opening the file and loading the encrypted contents
+   # Opening the file and loading the encrypted contents
    with open(outputfile, 'rb') as file:
       encrypted = file.read()
       file.close()
 
-   ## Decrypting the file contents
+   # Decrypting the file contents
    print('\nDecrypting file--------->')
    start_time = time.perf_counter_ns()
    decryptor = cipher.decryptor()
@@ -133,7 +133,7 @@ def TripleDES(key,inputFile,outputfile):
    dec_time = get_time(start_time) 
    time_collect.append(dec_time)
  
-   ## Writing the decrypted file contents into the file
+   # Writing the decrypted file contents into the file
    with open(outputfile,'wb') as file:
       file.write(pt)
       file.close()
@@ -143,14 +143,12 @@ def TripleDES(key,inputFile,outputfile):
 def AES_CTR(key,inputFile,outputfile):
    '''Encrypts the file using AES_CTR mode'''
 
-   ## Opening the file and loading the original contents
+   # Opening the file and loading the original contents
    with open(inputFile, 'rb') as file:
       original = file.read()
-      # length = 16 - (len(original)%16)
-      # original += bytes([length])*length
       file.close()
 
-   ## Generating IV and encrypting the file contents
+   # Generating IV and encrypting the file contents
    iv = os.urandom(16)
    start_time = time.perf_counter_ns()
    cipher = Cipher(algorithms.AES(key),modes.CTR(iv))
@@ -159,27 +157,26 @@ def AES_CTR(key,inputFile,outputfile):
    enc_aes_ctr = get_time(start_time)
    time_collect.append(enc_aes_ctr)
  
-   ## Writing the encrypted contents into the file
+   # Writing the encrypted contents into the file
    with open(outputfile, 'wb') as file:   
       file.write(ct)
       file.close()
    print(f"The file {inputFile} has been encrypted and contents stored to {outputfile}")
 
-   ## Opening the file and loading the encrypted contents
+   # Opening the file and loading the encrypted contents
    with open(outputfile, 'rb') as file:
       encrypted = file.read()
       file.close()
 
-   ## Decrypting the file contents
+   # Decrypting the file contents
    print('\nDecrypting file--------->')
    start_time = time.perf_counter_ns()
    decryptor = cipher.decryptor()
    pt = decryptor.update(encrypted) + decryptor.finalize()
    dec_aes_ctr = get_time(start_time)
    time_collect.append(dec_aes_ctr)
-   # pt = pt[:-pt[-length]]
  
-   ## Writing the decrypted file contents into the file
+   # Writing the decrypted file contents into the file
    with open(outputfile,'wb') as file:
       file.write(pt)
       file.close()
@@ -189,25 +186,24 @@ def AES_CTR(key,inputFile,outputfile):
 def RSA_chunking(inputfile,outputfile,keysize):
    '''Encrypts the file using RSA 2048 bit key [with chunking]'''
 
-   ## Generating private and public key
+   # Generating private and public key
    print(f'Generating {keysize} bit key--------->')
    start_time = time.perf_counter_ns() 
    private_key = rsa.generate_private_key(public_exponent=65537,key_size=keysize)
    public_key = private_key.public_key()
    key_time = get_time(start_time)
    time_collect.append(key_time)
-   # print(f'The length of public key {public_key.key_size}')
 
 
    if(keysize == 2048):
-      encryption_blocksize = 190 # 66 bytes less from the original key size due to padding (beyond this it breaks!)
+      encryption_blocksize = 190 # 66 bytes less from the original key size due to padding (it breaks beyond this!)
       decryption_blocksize = 256
 
    if(keysize == 3072):
-      encryption_blocksize = 318 # 66 bytes less from the original key size due to padding (beyond this it breaks!)
+      encryption_blocksize = 318 # 66 bytes less from the original key size due to padding (it breaks beyond this!)
       decryption_blocksize = 384
 
-   ## Calling chunking and encrypting the chunks
+   # Calling chunking and encrypting the chunks
    print('\nEncrypting file--------->')
    start_time = time.perf_counter_ns() 
    ciphertext= bytes()
@@ -221,24 +217,22 @@ def RSA_chunking(inputfile,outputfile,keysize):
             label=None
          )
       )
-      ## Storing all cipherblocks
+      # Storing all cipherblocks
       ciphertext += cipherblock
-      # print(type(cipherblock))
    enc_rsa = get_time(start_time)
    time_collect.append(enc_rsa)
 
-   # print(f'The complete cipher block{ciphertext}')
    with open(outputfile, 'wb') as file:   
       file.write(ciphertext)
       file.close()
    print(f"The file {inputfile} has been encrypted and contents stored to {outputfile}")
    
-   ## Decrypting the ciphertext using private key to be writtten to output file
+   # Decrypting the ciphertext using private key to be writtten to output file
    print('\nDecrypting file--------->')
    start_time = time.perf_counter_ns() 
-   plaintext = bytes()
+   plain_text = bytes()
    for ctblock in chunked(ciphertext,decryption_blocksize):
-      plainblock = private_key.decrypt(
+      plain_block = private_key.decrypt(
          ctblock,
          padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -246,12 +240,13 @@ def RSA_chunking(inputfile,outputfile,keysize):
             label=None
          )
       )
-      plaintext += plainblock
+      plain_text += plain_block
    dec_rsa = get_time(start_time)
    time_collect.append(dec_rsa)
-   ## Writing the decrypted file contents into the file
+
+   # Writing the decrypted file contents into the file
    with open(outputfile,'wb') as file:
-      file.write(plaintext)
+      file.write(plain_text)
       file.close()
    print(f"The file {outputfile} has been decrypted")
    
@@ -275,7 +270,7 @@ def chunked(source,size):
 def SHA_256_SHA_512_SHA3_256 (inputfile):
    '''Generates SHA-256, SHA-512 and SHA3-256 hashes of the file'''
 
-   ## Opening the file and loading the original contents
+   # Opening the file and loading the original contents
    with open(inputfile, 'rb') as file:
       original = file.read()
       file.close()
@@ -346,6 +341,13 @@ def create_result_csv(csv_filepath):
    with open(csv_filepath,"w",newline="") as f:
       writer = csv.writer(f)
       writer.writerow(["Algorithms","Time Key","Time Encrption", "Time Decryption"])
+      f.close()
+
+def create_result_sha_csv(csv_filepath): 
+   os.makedirs(os.path.dirname(csv_filepath), exist_ok=True)
+   with open(csv_filepath,"w",newline="") as f:
+      writer = csv.writer(f)
+      writer.writerow(["SHA","SHA_256","SHA_512", "SHA3_256"])
       f.close()
 
 def collect_time_to_csv(csv_filepath,time_collection):
@@ -432,7 +434,7 @@ def Run_AES_CTR(input_small,output_small,input_large,output_large,res_file):
    comparefiles(input_small,output_small)
    collect_time_to_csv(res_file,time_collect)
 
-   # reset out collection for new row entry
+   # reset our collection for new row entry
    reset_list("AES_CTR_Large_File",key_time)
 
    print('\nEncrypting 10MB file using AES CTR--------->')
@@ -461,7 +463,7 @@ def Run_AES_CTR_256(input_small,output_small,input_large,output_large,res_file):
    comparefiles(input_small,output_small)
    collect_time_to_csv(res_file,time_collect)
 
-   # reset out collection for new row entry
+   # reset our collection for new row entry
    reset_list("AES_CTR_256_Large_File",key_time)
 
    print('\nEncrypting 10MB file using AES CTR--------->')
@@ -482,7 +484,7 @@ def Run_RSA_2048(input_small,output_small,input_large,output_large,res_file):
    comparefiles(input_small,output_small)
    collect_time_to_csv(res_file,time_collect)
    
-   # reset out collection for new row entry
+   # reset our collection for new row entry
    time_collect.clear()
    time_collect.append("RSA_2048_Large_File")
 
@@ -504,7 +506,7 @@ def Run_RSA_3072(input_small,output_small,input_large,output_large,res_file):
    comparefiles(input_small,output_small)
    collect_time_to_csv(res_file,time_collect)
 
-   # reset out collection for new row entry
+   # reset our collection for new row entry
    time_collect.clear()
    time_collect.append("RSA_3072_Large_File")
    
@@ -514,10 +516,10 @@ def Run_RSA_3072(input_small,output_small,input_large,output_large,res_file):
    comparefiles(input_large,output_large)
    collect_time_to_csv(res_file,time_collect)
 
-def Run_SHA(input_small,input_large,res_file):
+def Run_SHA(input_small,input_large,res_file,file_type):
 
    time_collect.clear()
-   time_collect.append("SHA_Small_File")
+   time_collect.append(file_type+"Small_File")
 
    print('----------------Staring SHA------------------')
    print('\nGenerating hashes for 1KB file--------->')
@@ -525,7 +527,7 @@ def Run_SHA(input_small,input_large,res_file):
    collect_time_to_csv(res_file,time_collect)
    
    time_collect.clear()
-   time_collect.append("SHA_Large_file")
+   time_collect.append(file_type+"Large_File")
 
    print('\nGenerating hashes for 10MB file--------->')
    SHA_256_SHA_512_SHA3_256(input_large)
@@ -540,7 +542,7 @@ def Run_DSA_2048(input_small,input_large,res_file):
    DSA(input_small,2048)
    collect_time_to_csv(res_file,time_collect)
 
-   # reset out collection for new row entry
+   # reset our collection for new row entry
    time_collect.clear()
    time_collect.append("DSA_2048_Large_File")
 
@@ -557,7 +559,7 @@ def Run_DSA_3072(input_small,input_large,res_file):
    DSA(input_small,3072)
    collect_time_to_csv(res_file,time_collect)
 
-   # reset out collection for new row entry
+   # reset our collection for new row entry
    time_collect.clear()
    time_collect.append("DSA_3072_Large_File")
 
@@ -577,36 +579,61 @@ def Plot_Graph(data,label):
    plt.barh(y-h, df['Time Key'].values, height=h, label='Key')
    plt.barh(y, df['Time Encrption'].values, height=h, label='Encrption')
    plt.barh(y+h, df['Time Decryption'].values, height=h, label='Decryption')
+   
    # Plot the data using bar() method
    plt.yticks(y, algos)
-   #plt.ylim([0,0.01])
    plt.tight_layout()
    plt.xlabel(label)
    plt.ylabel('Seconds')
-   plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.6), fancybox=True, ncol=5)
+   plt.legend(loc='upper right', fancybox=True, ncol=5)
+
+   # Show the plot
+   plt.show()
+
+def Plot_Graph_SHA(data,label):
+   # Initialize the lists for X and Y
+   data = pd.read_csv(data)
+
+   df = pd.DataFrame(data)
+   algos = df['SHA']
+
+   y = np.arange(len(algos))
+   h = 0.3
+   plt.barh(y-h, df['SHA_256'].values, height=h, label='SHA_256')
+   plt.barh(y, df['SHA_512'].values, height=h, label='SHA_512')
+   plt.barh(y+h, df['SHA3_256'].values, height=h, label='SHA3_256')
+   
+   # Plot the data using bar() method
+   plt.yticks(y, algos)
+   plt.tight_layout()
+   plt.xlabel(label)
+   plt.ylabel('Seconds')
+   plt.legend(loc='upper right',  fancybox=True, ncol=5)
+   
    # Show the plot
    plt.show()
 
 def Generate_Report(path):
-   files = Path(path).glob('*.csv')  # .rglob to get subdirectories
-   dfs = list()
+   files = Path(path).glob('*.csv') 
+   dataframes = list()
    for f in files:
       data = pd.read_csv(f)
-      # .stem is method for pathlib objects to get the filename w/o the extension
       data['file'] = f.stem
-      dfs.append(data)
+      dataframes.append(data)
 
-   df = pd.concat(dfs, ignore_index=True)
+   df = pd.concat(dataframes, ignore_index=True)
    df.to_html("Report.htm")
 
 if __name__=='__main__':
+
+   #Initialize paths for our data files
    smalltxtfile,smalltxtfile_after = 'Data\\Small\\smalltxtfile.txt','Data\\Small\\smalltxtfile_after.txt'
    mediumtxtfile,mediumtxtfile_after = 'Data\\Medium\\mediumtxtfile.txt','Data\\Medium\\mediumtxtfile_after.txt'
    largetxtfile,largetxtfile_after = 'Data\\Large\\largetxtfile.txt','Data\\Large\\largetxtfile_after.txt'
 
    smallimagefile,smallimagefile_after = 'Data\\Small\\smalljpg.jpg','Data\\Small\\smalljpg_after.jpg'
    mediumimagefile,mediumimagefile_after = 'Data\\Medium\\mediumjpg.jpg','Data\\Medium\\mediumjpg_after.jpg'
-   largeimagefile,largeimagefile_after = 'Data\\Large\\largejpg.jpg','Data\\Large\\largejpg.jpg'
+   largeimagefile,largeimagefile_after = 'Data\\Large\\largejpg.jpg','Data\\Large\\largejpg_after.jpg'
    
    smallcsvfile,smallcsvfile_after = 'Data\\Small\\smallcsv.csv','Data\\Small\\smallcsv_after.csv'
    mediumcsvfile,mediumcsvfile_after = 'Data\\Medium\\mediumcsv.csv','Data\\Medium\\mediumcsv_after.csv'
@@ -628,9 +655,9 @@ if __name__=='__main__':
    mediumpdffile,mediumpdffile_after = 'Data\\Medium\\mediumpdf.pdf','Data\\Medium\\mediumpdf_after.pdf'
    largepdffile,largepdffile_after = 'Data\\Large\\largepdf.pdf','Data\\Large\\largepdf_after.pdf'
 
-   smallzipfile,smallzipfile_after = 'Data\\Small\\smallpdf.pdf','Data\\Small\\smallpdf_after.pdf'
-   mediumzipfile,mediumzipfile_after = 'Data\\Medium\\mediumpdf.pdf','Data\\Medium\\mediumpdf_after.pdf'
-   largezipfile,largezipfile_after = 'Data\\Large\\largepdf.pdf','Data\\Large\\largepdf_after.pdf'   
+   smallzipfile,smallzipfile_after = 'Data\\Small\\smallzip.zip','Data\\Small\\smallzip_after.zip'
+   mediumzipfile,mediumzipfile_after = 'Data\\Medium\\mediumzip.zip','Data\\Medium\\mediumzip_after.zip'
+   largezipfile,largezipfile_after = 'Data\\Large\\largezip.zip','Data\\Large\\largezip_after.zip'   
 
    text_res_file = 'Results\\text_results.csv'
    gif_res_file = 'Results\\gif_results.csv'
@@ -640,6 +667,7 @@ if __name__=='__main__':
    mp4_res_file = 'Results\\mp4_results.csv'
    pdf_res_file = 'Results\\pdf_results.csv'
    zip_res_file = 'Results\\zip_results.csv'
+   sha_res_file = 'Results\\sha_results.csv'
 
    path= r'Results'
 
@@ -654,9 +682,9 @@ if __name__=='__main__':
    create_result_csv(mp4_res_file)
    create_result_csv(pdf_res_file)
    create_result_csv(zip_res_file)
+   create_result_sha_csv(sha_res_file)
    
 
-   #print(type(smallfile))
 
    ##################################### TEXT ####################################################################
    
@@ -698,7 +726,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smalltxtfile,largetxtfile,text_res_file)
+   Run_SHA(smalltxtfile,largetxtfile,sha_res_file,"Text_")
 
    #endregion
 
@@ -753,7 +781,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallgiffile,largegiffile,gif_res_file)
+   Run_SHA(smallgiffile,largegiffile,sha_res_file,"Gif_")
 
    #endregion
 
@@ -808,7 +836,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallcsvfile,largecsvfile,csv_res_file)
+   Run_SHA(smallcsvfile,largecsvfile,sha_res_file,"Csv_")
 
    #endregion
 
@@ -863,7 +891,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallimagefile,largeimagefile,image_res_file)
+   Run_SHA(smallimagefile,largeimagefile,sha_res_file,"Jpg_")
 
    #endregion
 
@@ -918,7 +946,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallmp3file,largemp3file,mp3_res_file)
+   Run_SHA(smallmp3file,largemp3file,sha_res_file,"Mp3_")
 
    #endregion
 
@@ -973,7 +1001,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallmp4file,largemp4file,mp4_res_file)
+   Run_SHA(smallmp4file,largemp4file,sha_res_file,"Mp4_")
 
    #endregion
 
@@ -1028,7 +1056,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallpdffile,largepdffile,pdf_res_file)
+   Run_SHA(smallpdffile,largepdffile,sha_res_file,"Pdf_")
 
    #endregion
 
@@ -1083,7 +1111,7 @@ if __name__=='__main__':
 
    #region SHA
 
-   Run_SHA(smallzipfile,largezipfile,zip_res_file)
+   Run_SHA(smallzipfile,largezipfile,sha_res_file,"Zip_")
 
    #endregion
 
@@ -1112,3 +1140,4 @@ if __name__=='__main__':
    Plot_Graph(mp4_res_file,'MP4 Files')
    Plot_Graph(pdf_res_file,'PDF Files')
    Plot_Graph(zip_res_file,'ZIP Files')
+   Plot_Graph_SHA(sha_res_file,'SHA Comparision')
