@@ -738,7 +738,7 @@ if __name__=='__main__':
 
    #region DSA_3072
 
-   Run_DSA_2048(smalltxtfile,largetxtfile,text_res_file)
+   Run_DSA_3072(smalltxtfile,largetxtfile,text_res_file)
 
    #endregion
 
@@ -1123,7 +1123,7 @@ if __name__=='__main__':
 
    #region DSA_3072
 
-   Run_DSA_3072(smallpdffile,largepdffile,pdf_res_file)
+   Run_DSA_3072(smallzipfile,largezipfile,zip_res_file)
    
    #endregion
 
