@@ -587,6 +587,8 @@ def Plot_Graph(data,label):
    plt.ylabel('Seconds')
    plt.legend(loc='upper right', fancybox=True, ncol=5)
 
+   #Save the plot
+   plt.savefig('Results\\Graphs\\'+label+'.png')
    # Show the plot
    plt.show()
 
@@ -609,7 +611,10 @@ def Plot_Graph_SHA(data,label):
    plt.xlabel(label)
    plt.ylabel('Seconds')
    plt.legend(loc='upper right',  fancybox=True, ncol=5)
-   
+
+   #Save the plot
+   plt.savefig('Results\\Graphs\\'+label+'.png')
+
    # Show the plot
    plt.show()
 
