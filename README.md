@@ -13,6 +13,8 @@ B. How to run?
   3. Run perf_tool_crypto.py using VSCode or any other python IDE/Command line
 
 C. Results
-  1. Results are stored in result folder and Graphs folder.
-  2. The new file are generated in respective "Data" folder.
-  3. There is also html table report generated called "Report.htm" at the current directory.
+  1. Results are stored in result folder and graphs are stored in "Results\Graphs" folder.
+  2. You can see the rime taken by each algorithm in nano seconds, micro seconds and seconds in UTC format in the terminal/console output.
+  3. After it the graphs for each are shown one by one. Please close the current graph to see the next graph result. 
+  4. The new file are generated in respective "Data" folder.
+  5. There is also html table report generated called "Report.htm" at the current directory.
